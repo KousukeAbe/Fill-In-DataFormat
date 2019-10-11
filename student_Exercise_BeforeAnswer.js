@@ -9,14 +9,14 @@ const Zero_Padding = (num) => {
 // ここにやりたい処理を入れる
 const Process = (student_operation_log) => {
   fs.writeFileSync('./student_exercise_beforeanswer.txt', '');
-  const start_time = new Date('2019-10-02T06:00:00');
+  const start_time = new Date('2019-10-09T06:00:00');
   //  ここは手動
-  let finish_time = [new Date('2019-10-02T06:46:38'), new Date('2019-10-02T06:49:20'), new Date('2019-10-02T07:24:56')];
+  let finish_time = [new Date('2019-10-09T06:39:56'), new Date('2019-10-09T06:50:17'), new Date('2019-10-09T07:22:05'), new Date('2019-10-09T07:24:41')];
 
-  var fileName = './group_a.txt';
-  const msg = fs.readFileSync(fileName, {encoding: "utf-8"});
-  let target_list = msg.split('\n');
-  let target_page_num = [20,21,28];
+  // var fileName = './group_a.txt';
+  // const msg = fs.readFileSync(fileName, {encoding: "utf-8"});
+  // let target_list = msg.split('\n');
+  let target_page_num = [14,17,24,25];
 
   let page_operation = [];
   let student_list = [];
@@ -28,13 +28,28 @@ const Process = (student_operation_log) => {
   fs.appendFileSync('./student_exercise_beforeanswer.txt', `操作数\n`);
   for(let i of student_operation_log){
 
-    if(!target_list.includes(i.student_number))continue;
+    // if(!target_list.includes(i.student_number))continue;
     if(!target_page_num.includes(i.page_num))continue;
     //対象の学生が終わったときの処理
     if(i.student_number != current_student_number){
       current_student_number = i.student_number;
       student_list.push(current_student_number);
-      page_operation.push([{'20':0, '21':0, '28':0}]);
+      page_operation.push([{'14':0, '17':0, '24':0, '25':0}]);
+    }
+
+    //解説の空欄の排除　
+    if(i.page_num == 17){
+      if(i.blank_id != 857)continue;
+    }
+
+    if(i.page_num == 24){
+      if(i.blank_id != 883)continue;
+    }
+
+    if(i.page_num == 25){
+      if(i.blank_id != 888){
+        if(i.blank_id != 893)continue;
+      }
     }
 
     const index_num = target_page_num.indexOf(i.page_num);
@@ -55,12 +70,12 @@ const Process = (student_operation_log) => {
     for(let i = 0; i < page_operation.length; i++){
       fs.appendFileSync('./student_exercise_beforeanswer.txt', `${page_operation[i][0][String(target_page_num[p])]},`);
     }
-    fs.appendFileSync('./student_exercise_beforeanswer.txt', `,`);
+    fs.appendFileSync('./student_exercise_beforeanswer.txt', `\n`);
   }
 }
 
 const Boot = async () => {
-  let student_operation_log = await Query('select * from correct_answers where url = ? order by student_number', ['/documents/se2.pdf']);
+  let student_operation_log = await Query('select * from correct_answers where url = ? order by student_number', ['/documents/se3.pdf']);
   Process(student_operation_log);
   return 0;
 };
@@ -72,7 +87,7 @@ const Connection = async () => {
     host: "127.0.0.1",
     user: "root",
     password: "",
-    database: "2019second"
+    database: "2019secondVer2"
   });
   db.query = util.promisify(db.query);
   return db;

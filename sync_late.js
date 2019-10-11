@@ -9,8 +9,8 @@ const Zero_Padding = (num) => {
 // ここにやりたい処理を入れる
 const Process = (teacher_page_turning, student_page_turning) => {
   fs.writeFileSync('./sync_late.txt', '');
-  const start_time = new Date('2019-10-02T15:00:00');
-  const finish_time = new Date('2019-10-02T16:30:00');
+  const start_time = new Date('2019-10-09T15:37:00');
+  const finish_time = new Date('2019-10-09T15:39:56');
 
   let teacher_index_start = 0;
 
@@ -25,7 +25,8 @@ const Process = (teacher_page_turning, student_page_turning) => {
   //講義時間外のデータの削除
   let last_student_index = 0;
   while(start_time.getTime() > new Date(teacher_page_turning[teacher_index_start].created_at).getTime())teacher_index_start++;
-  current_teacher_index = teacher_index_start;
+  current_teacher_index = teacher_index_start - 1; //途中の同期率よう
+  // current_teacher_index = teacher_index_start;
 
   //生徒のページ遷移分ループ
   let p = 1;
@@ -97,8 +98,8 @@ const Process = (teacher_page_turning, student_page_turning) => {
 }
 
 const Boot = async () => {
-  let teacher_page_turning = await Query('select * from teacher_page_turning where url = "/documents/se2.pdf" and page_num > 0;', []);
-  let student_page_turning = await Query('select * from student_page_turning where url = "/documents/se2.pdf" and page_num > 0 order by student_number, id;', []);
+  let teacher_page_turning = await Query('select * from teacher_page_turning where url = "/documents/se3.pdf" and page_num > 0;', []);
+  let student_page_turning = await Query('select * from student_page_turning where url = "/documents/se3.pdf" and page_num > 0 order by student_number, id;', []);
   Process(teacher_page_turning, student_page_turning);
   return 0;
 };
@@ -110,7 +111,7 @@ const Connection = async () => {
     host: "127.0.0.1",
     user: "root",
     password: "",
-    database: "2019second"
+    database: "2019secondVer2"
   });
   db.query = util.promisify(db.query);
   return db;
