@@ -9,10 +9,11 @@ const Zero_Padding = (num) => {
 // ここにやりたい処理を入れる
 const Process = (student_operation_log) => {
   fs.writeFileSync('./page_turning.txt', '');
-  const start_time = new Date('2019-10-02T15:00:00');
-  const finish_time = new Date('2019-10-02T16:30:00');
+  //期間の設定(手動)
+  const start_time = new Date('2019-10-02T15:42:03');
+  const finish_time = new Date('2019-10-02T15:51:45');
 
-  var fileName = './group_a.txt';
+  var fileName = './5.txt';
   const msg = fs.readFileSync(fileName, {encoding: "utf-8"});
   let target_list = msg.split('\n');
 
