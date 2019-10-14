@@ -9,8 +9,8 @@ const Zero_Padding = (num) => {
 // ここにやりたい処理を入れる
 const Process = (teacher_page_turning, student_page_turning) => {
   fs.writeFileSync('./sync_late.txt', '');
-  const start_time = new Date('2019-10-09T15:37:00');
-  const finish_time = new Date('2019-10-09T15:39:56');
+  const start_time = new Date('2019-10-09T15:00:00');
+  const finish_time = new Date('2019-10-09T16:30:00');
 
   let teacher_index_start = 0;
 
@@ -19,14 +19,15 @@ const Process = (teacher_page_turning, student_page_turning) => {
   let current_time = null;
   let async_time = 0;
   let current_type = null;
+  let latest_time = finish_time;
 
   let current_teacher_index = 0;
 
   //講義時間外のデータの削除
   let last_student_index = 0;
   while(start_time.getTime() > new Date(teacher_page_turning[teacher_index_start].created_at).getTime())teacher_index_start++;
-  current_teacher_index = teacher_index_start - 1; //途中の同期率よう
-  // current_teacher_index = teacher_index_start;
+  // current_teacher_index = teacher_index_start - 1; //途中の同期率よう
+  current_teacher_index = teacher_index_start;
 
   //生徒のページ遷移分ループ
   let p = 1;
@@ -40,7 +41,10 @@ const Process = (teacher_page_turning, student_page_turning) => {
       last_student_index = 1;
       last_time = start_time;
 
-      fs.appendFileSync('./sync_late.txt', `${Math.floor(async_time / (finish_time.getTime() - start_time.getTime()) * 10000) / 100}\n${current_student_number},\n`);
+      async_time += finish_time.getTime() - latest_time.getTime();
+      fs.appendFileSync('./sync_late.txt', `${Zero_Padding(latest_time.getHours())}:${Zero_Padding(latest_time.getMinutes())}:${Zero_Padding(latest_time.getSeconds())}\n`);
+      fs.appendFileSync('./sync_late.txt', `${Math.floor(async_time / (finish_time.getTime() - start_time.getTime()) * 10000) / 100}\n${current_student_number},`);
+      latest_time = finish_time;
       async_time = 0;
       p++;
       continue;
@@ -48,6 +52,10 @@ const Process = (teacher_page_turning, student_page_turning) => {
 
     // 講義時間外のデータの削除
     current_time = new Date(student_page_turning[p].created_at);
+    if(!teacher_page_turning[current_teacher_index + 1] || !student_page_turning[p + 1]){
+      p++;
+      continue;
+    }
     if(start_time.getTime() > current_time.getTime() || finish_time.getTime() < current_time.getTime()){
       p++;
       continue;
@@ -56,8 +64,8 @@ const Process = (teacher_page_turning, student_page_turning) => {
       p++;
       continue;
     }
-    fs.appendFileSync('./sync_late.txt', `${Zero_Padding(current_time.getHours())}:${Zero_Padding(current_time.getMinutes())}:${Zero_Padding(current_time.getSeconds())},${student_page_turning[p].page_num}\n`);
-
+    // fs.appendFileSync('./sync_late.txt', `${Zero_Padding(current_time.getHours())}:${Zero_Padding(current_time.getMinutes())}:${Zero_Padding(current_time.getSeconds())},${student_page_turning[p].page_num}\n`);
+    latest_time = current_time;
     //どっちのデータが遅いかを比較
     if(current_time.getTime() > new Date(teacher_page_turning[current_teacher_index].created_at).getTime()){
       if(new Date(student_page_turning[p + 1].created_at).getTime() > new Date(teacher_page_turning[current_teacher_index + 1].created_at).getTime()){

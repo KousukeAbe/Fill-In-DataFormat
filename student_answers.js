@@ -8,12 +8,12 @@ const Zero_Padding = (num) => {
 // ここにやりたい処理を入れる
 const Process = (student_operation_log) => {
   fs.writeFileSync('./student_answers.txt', '');
-  const start_time = new Date('2019-10-02T06:00:00');
-  const finish_time = new Date('2019-10-02T07:30:00');
+  const start_time = new Date('2019-10-09T06:00:00');
+  const finish_time = new Date('2019-10-09T07:30:00');
 
-  var fileName = './group_d.txt';
-  const msg = fs.readFileSync(fileName, {encoding: "utf-8"});
-  let target_list = msg.split('\n');
+  // var fileName = './group_d.txt';
+  // const msg = fs.readFileSync(fileName, {encoding: "utf-8"});
+  // let target_list = msg.split('\n');
 
   let answer_count = 0;
   let current_student_number = 0;
@@ -21,7 +21,7 @@ const Process = (student_operation_log) => {
   //生徒のページ遷移分ループ
   fs.appendFileSync('./student_answers.txt', `回答数\n`);
   for(let i of student_operation_log){
-    if(!target_list.includes(i.student_number))continue;
+    // if(!target_list.includes(i.student_number))continue;
 
     //対象の学生が終わったときの処理
     if(i.student_number != current_student_number){
@@ -41,7 +41,7 @@ const Process = (student_operation_log) => {
 }
 
 const Boot = async () => {
-  let student_operation_log = await Query('select * from correct_answers where url = "/documents/se2.pdf" and page_num > 0 and correct_answer_status = 1 order by student_number, id;', []);
+  let student_operation_log = await Query('select * from correct_answers where url = "/documents/se3.pdf" and page_num > 0 and correct_answer_status = 1 order by student_number, id;', []);
   Process(student_operation_log);
   return 0;
 };
@@ -53,7 +53,7 @@ const Connection = async () => {
     host: "127.0.0.1",
     user: "root",
     password: "",
-    database: "2019second"
+    database: "2019secondVer2"
   });
   db.query = util.promisify(db.query);
   return db;
