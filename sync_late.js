@@ -7,10 +7,10 @@ const Zero_Padding = (num) => {
 }
 
 // ここにやりたい処理を入れる
-const Process = (teacher_page_turning, student_page_turning) => {
+const Process = (teacher_page_turning, page_turning) => {
   fs.writeFileSync('./sync_late.txt', '');
-  const start_time = new Date('2019-10-09T16:20:52');
-  const finish_time = new Date('2019-10-09T16:22:17');
+  const start_time = new Date('2019-10-09T15:00:00');
+  const finish_time = new Date('2019-10-09T16:30:00');
 
   let teacher_index_start = 0;
 
@@ -28,6 +28,29 @@ const Process = (teacher_page_turning, student_page_turning) => {
   while(start_time.getTime() > new Date(teacher_page_turning[teacher_index_start].created_at).getTime())teacher_index_start++;
   // current_teacher_index = teacher_index_start - 1; //途中の同期率よう
   current_teacher_index = teacher_index_start;
+
+  let student_page_turning = [];
+  student_page_turning.push(page_turning[0]);
+  current_student_number = page_turning[0].student_number;
+  for(let p = 1; p < page_turning.length - 1; p++){
+    if(page_turning[p].student_number != current_student_number){
+      current_student_number = page_turning[p].student_number;
+      let current_time = new Date(page_turning[p].created_at);
+      student_page_turning.push(page_turning[p]);
+      continue;
+    }
+
+    if(page_turning[p].student_number != page_turning[p + 1].student_number){
+      student_page_turning.push(page_turning[p]);
+      continue;
+    }
+
+    let current_time = new Date(page_turning[p].created_at);
+    let turning_time = new Date(page_turning[p+1].created_at);
+    if((turning_time.getTime() - current_time.getTime()) > 5000){
+      student_page_turning.push(page_turning[p]);
+    }
+  }
 
   //生徒のページ遷移分ループ
   let p = 1;
