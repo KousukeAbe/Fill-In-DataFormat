@@ -36,7 +36,7 @@ const Process = (student_operation_log) => {
       student_list.push(current_student_number);
       page_operation.push([{'14':0, '17':0, '24':0, '25':0}]);
     }
-
+    if(i.update_at == null)continue;
     //解説の空欄の排除　
     if(i.page_num == 17){
       if(i.blank_id != 857)continue;

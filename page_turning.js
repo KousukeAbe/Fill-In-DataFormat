@@ -10,8 +10,8 @@ const Zero_Padding = (num) => {
 const Process = (student_operation_log) => {
   fs.writeFileSync('./page_turning.txt', '');
   //期間の設定(手動)
-  const start_time = new Date('2019-10-09T15:37:03');
-  const finish_time = new Date('2019-10-09T15:39:56');
+  const start_time = new Date('2019-10-09T15:00:00');
+  const finish_time = new Date('2019-10-09T16:30:00');
 
   // let finish_time = [new Date('2019-10-09T06:39:56'), new Date('2019-10-09T06:50:17'), new Date('2019-10-09T07:22:05'), new Date('2019-10-09T07:24:41')];
 
@@ -67,7 +67,8 @@ const Process = (student_operation_log) => {
 }
 
 const Boot = async () => {
-  let student_operation_log = await Query('select * from student_page_turning where url = "/documents/se3.pdf" and page_num > 0 order by student_number, id;', []);
+  // let student_operation_log = await Query('select * from student_page_turning where url = "/documents/se3.pdf" and page_num > 0 order by student_number, id;', []);
+  let student_operation_log = await Query('select * from teacher_page_turning where url = "/documents/se3.pdf" and page_num > 0 order by id;', []);
   Process(student_operation_log);
   return 0;
 };
