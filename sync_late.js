@@ -35,7 +35,6 @@ const Process = (teacher_page_turning, page_turning) => {
   for(let p = 1; p < page_turning.length - 1; p++){
     if(page_turning[p].student_number != current_student_number){
       current_student_number = page_turning[p].student_number;
-      let current_time = new Date(page_turning[p].created_at);
       student_page_turning.push(page_turning[p]);
       continue;
     }
@@ -65,7 +64,7 @@ const Process = (teacher_page_turning, page_turning) => {
       last_time = start_time;
 
       async_time += finish_time.getTime() - latest_time.getTime();
-      fs.appendFileSync('./sync_late.txt', `${Zero_Padding(latest_time.getHours())}:${Zero_Padding(latest_time.getMinutes())}:${Zero_Padding(latest_time.getSeconds())}\n`);
+      fs.appendFileSync('./sync_late.txt', `${Zero_Padding(latest_time.getHours())}:${Zero_Padding(latest_time.getMinutes())}:${Zero_Padding(latest_time.getSeconds())},`);
       fs.appendFileSync('./sync_late.txt', `${Math.floor(async_time / (finish_time.getTime() - start_time.getTime()) * 10000) / 100}\n${current_student_number},`);
       latest_time = finish_time;
       async_time = 0;
@@ -87,7 +86,9 @@ const Process = (teacher_page_turning, page_turning) => {
       p++;
       continue;
     }
-    fs.appendFileSync('./sync_late.txt', `${Zero_Padding(current_time.getHours())}:${Zero_Padding(current_time.getMinutes())}:${Zero_Padding(current_time.getSeconds())},${student_page_turning[p].page_num}\n`);
+    latest_time = current_time;
+    // fs.appendFileSync('./sync_late.txt',`${p}: ${student_page_turning[p].id}\n`);
+    // fs.appendFileSync('./sync_late.txt', `${Zero_Padding(current_time.getHours())}:${Zero_Padding(current_time.getMinutes())}:${Zero_Padding(current_time.getSeconds())},${student_page_turning[p].page_num}\n`);
     //どっちのデータが遅いかを比較
     if(current_time.getTime() > new Date(teacher_page_turning[current_teacher_index].created_at).getTime()){
       if(new Date(student_page_turning[p + 1].created_at).getTime() > new Date(teacher_page_turning[current_teacher_index + 1].created_at).getTime()){
@@ -121,7 +122,10 @@ const Process = (teacher_page_turning, page_turning) => {
             async_time += new Date(student_page_turning[p + 1].created_at).getTime() - new Date(teacher_page_turning[current_teacher_index].created_at).getTime();
           }
         }else{
-          if(new Date(teacher_page_turning[current_teacher_index].created_at).getDate() != new Date(teacher_page_turning[current_teacher_index - 1].created_at).getDate())continue;
+          if(new Date(teacher_page_turning[current_teacher_index].created_at).getDate() != new Date(teacher_page_turning[current_teacher_index - 1].created_at).getDate()){
+            p++;
+            continue;
+          }
           if(student_page_turning[p].page_num != teacher_page_turning[current_teacher_index - 1].page_num){
             // console.log(student_page_turning[p].student_number, student_page_turning[p].page_num);
             // console.log("4", new Date(student_page_turning[p + 1].created_at), new Date(teacher_page_turning[current_teacher_index].created_at));
@@ -129,8 +133,8 @@ const Process = (teacher_page_turning, page_turning) => {
           }
         }
       }
-      p++;
     }
+    p++;
   }
 }
 

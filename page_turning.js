@@ -7,7 +7,7 @@ const Zero_Padding = (num) => {
   return ("00000000" + num).slice(-2);
 }
 // ここにやりたい処理を入れる
-const Process = (student_operation_log) => {
+const Process = (operation_log) => {
   fs.writeFileSync('./page_turning.txt', '');
   //期間の設定(手動)
   const start_time = new Date('2019-10-09T15:00:00');
@@ -24,6 +24,28 @@ const Process = (student_operation_log) => {
   let current_student_number = 0;
   let flag = true;
   let column_count = 0;
+
+  let student_operation_log = [];
+  student_operation_log.push(operation_log[0]);
+  current_student_number = operation_log[0].student_number;
+  for(let p = 1; p < operation_log.length - 1; p++){
+    if(operation_log[p].student_number != current_student_number){
+      current_student_number = operation_log[p].student_number;
+      student_operation_log.push(operation_log[p]);
+      continue;
+    }
+
+    if(operation_log[p].student_number != operation_log[p + 1].student_number){
+      student_operation_log.push(operation_log[p]);
+      continue;
+    }
+
+    let current_time = new Date(operation_log[p].created_at);
+    let turning_time = new Date(operation_log[p+1].created_at);
+    if((turning_time.getTime() - current_time.getTime()) > 5000){
+      student_operation_log.push(operation_log[p]);
+    }
+  }
 
   //生徒のページ遷移分ループ
   fs.appendFileSync('./page_turning.txt', `操作数\n`);
@@ -67,8 +89,8 @@ const Process = (student_operation_log) => {
 }
 
 const Boot = async () => {
-  // let student_operation_log = await Query('select * from student_page_turning where url = "/documents/se3.pdf" and page_num > 0 order by student_number, id;', []);
-  let student_operation_log = await Query('select * from teacher_page_turning where url = "/documents/se3.pdf" and page_num > 0 order by id;', []);
+  let student_operation_log = await Query('select * from student_page_turning where url = "/documents/se3.pdf" and page_num > 0 order by student_number, id;', []);
+  // let student_operation_log = await Query('select * from teacher_page_turning where url = "/documents/se3.pdf" and page_num > 0 order by id;', []);
   Process(student_operation_log);
   return 0;
 };
