@@ -15,9 +15,9 @@ const Process = (operation_log) => {
 
   // let finish_time = [new Date('2019-10-09T06:39:56'), new Date('2019-10-09T06:50:17'), new Date('2019-10-09T07:22:05'), new Date('2019-10-09T07:24:41')];
 
-  var fileName = './group_d.txt';
-  const msg = fs.readFileSync(fileName, {encoding: "utf-8"});
-  let target_list = msg.split('\n');
+  // var fileName = './group_d.txt';
+  // const msg = fs.readFileSync(fileName, {encoding: "utf-8"});
+  // let target_list = msg.split('\n');
 
   let page_operation = [];
   let student_list = [];
@@ -51,7 +51,7 @@ const Process = (operation_log) => {
   fs.appendFileSync('./page_turning.txt', `操作数\n`);
   for(let i of student_operation_log){
 
-    if(!target_list.includes(i.student_number))continue;
+    // if(!target_list.includes(i.student_number))continue;
     //対象の学生が終わったときの処理
     if(i.student_number != current_student_number){
       current_student_number = i.student_number;
