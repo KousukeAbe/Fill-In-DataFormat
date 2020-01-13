@@ -6,16 +6,38 @@ const Zero_Padding = (num) => {
   return ("00000000" + num).slice(-2);
 }
 // ここにやりたい処理を入れる
-const Process = (student_operation_log) => {
+const Process = (operation_log) => {
   fs.writeFileSync('./teacher_page_turning.txt', '');
-  const start_time = new Date('2019-10-02T15:00:00');
-  const finish_time = new Date('2019-10-02T16:30:00');
+  const start_time = new Date('2019-10-09T15:00:00');
+  const finish_time = new Date('2019-10-09T16:30:00');
 
   let page_operation = [];
   let student_list = [];
   let current_student_number = 0;
   let flag = true;
   let column_count = 0;
+
+  let student_operation_log = [];
+  student_operation_log.push(operation_log[0]);
+  current_student_number = operation_log[0].student_number;
+  for(let p = 1; p < operation_log.length - 1; p++){
+    if(operation_log[p].student_number != current_student_number){
+      current_student_number = operation_log[p].student_number;
+      student_operation_log.push(operation_log[p]);
+      continue;
+    }
+
+    if(operation_log[p].student_number != operation_log[p + 1].student_number){
+      student_operation_log.push(operation_log[p]);
+      continue;
+    }
+
+    let current_time = new Date(operation_log[p].created_at);
+    let turning_time = new Date(operation_log[p+1].created_at);
+    if((turning_time.getTime() - current_time.getTime()) > 5000){
+      student_operation_log.push(operation_log[p]);
+    }
+  }
 
   //生徒のページ遷移分ループ
   fs.appendFileSync('./teacher_page_turning.txt', `操作数\n`);
@@ -53,7 +75,7 @@ const Process = (student_operation_log) => {
 }
 
 const Boot = async () => {
-  let student_operation_log = await Query('select * from teacher_page_turning where url = "/documents/se2.pdf" and page_num > 0;', []);
+  let student_operation_log = await Query('select * from teacher_page_turning where url = "/documents/se3.pdf" and page_num > 0;', []);
   Process(student_operation_log);
   return 0;
 };
@@ -65,7 +87,7 @@ const Connection = async () => {
     host: "127.0.0.1",
     user: "root",
     password: "",
-    database: "2019second"
+    database: "2019secondVer2"
   });
   db.query = util.promisify(db.query);
   return db;
