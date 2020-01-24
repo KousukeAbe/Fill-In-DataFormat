@@ -2,28 +2,36 @@ const mysql = require('mysql');
 const util = require('util');
 const fs = require('fs');
 
-const file_name = './student_exercise_incorrect.txt';
-const pdf_name = '/documents/se3.pdf';
+const file_name = './../totals/student_exercise_answertime.txt';
+const database_name = '/documents/se9.pdf';
 
 
 const Zero_Padding = (num) => {
   return ("00000000" + num).slice(-2);
 }
 // ここにやりたい処理を入れる
-const Process = (student_operation_log, teacher_operation_log) => {
+const Process = (blank, student_operation_log, teacher_operation_log) => {
   fs.writeFileSync(file_name, '');
   fs.appendFileSync(file_name, `時間\n`);
 
-  const start_time = new Date('2019-10-09T06:00:00');
+  const start_time = new Date('2019-11-27T06:00:00');
   //  ここは手動
-  let finish_time = new Date('2019-10-09T07:30:00');
+  let finish_time = new Date('2019-11-27T07:30:00');
 
   // var fileName = './5.txt';
   // const msg = fs.readFileSync(fileName, {encoding: "utf-8"});
   // let target_list = msg.split('\n');
+  let target_brank_id = [];
+  let target_page_num = [9,20,21,26,27,28];
+  for(let i of blank){
+    if(target_page_num.indexOf(i.page_num) < 0)continue;
+    target_brank_id.push(i.id);
+  }
 
   let target_brank = [];
   for(let i of teacher_operation_log){
+    if(target_brank_id.indexOf(i.blank_id) < 0)continue;
+
     const target = target_brank.find((blank) =>{
       return (blank.id === i.blank_id);
     });
@@ -62,7 +70,7 @@ const Process = (student_operation_log, teacher_operation_log) => {
     if(i.student_number != current_student_number){
       current_student_number = i.student_number;
 
-      for(let i of target_brank)fs.appendFileSync(file_name, `${answer_count[0][i.id]},`);
+      for(let i of target_brank)fs.appendFileSync(file_name, `${answer_count[0][i.id] / 1000},`);
       fs.appendFileSync(file_name, `\n`);
       fs.appendFileSync(file_name, `${current_student_number},`);
 
@@ -79,14 +87,16 @@ const Process = (student_operation_log, teacher_operation_log) => {
       return (blank.id === i.blank_id);
     });
 
-    answer_count[0][i.blank_id] = i.update_at ? 1 : 0;
+    if(!target)continue;
+    answer_count[0][i.blank_id] = current_time.getTime() - target.date.getTime();
   }
 }
 
 const Boot = async () => {
-  let teacher_operation_log = await Query('select blank_id, created_at from teacher_remove_blank where url = ?;', [pdf_name]);
-  let student_operation_log = await Query('select * from correct_answers where url = ? order by student_number', [pdf_name]);
-  Process(student_operation_log, teacher_operation_log);
+  let blank_log = await Query('select * from blank where url = ?;', [database_name]);
+  let teacher_operation_log = await Query('select blank_id, created_at from teacher_remove_blank where url = ?;', [database_name]);
+  let student_operation_log = await Query('select * from correct_answers where url = ? order by student_number', [database_name]);
+  Process(blank_log, student_operation_log, teacher_operation_log);
   return 0;
 };
 
@@ -97,7 +107,7 @@ const Connection = async () => {
     host: "127.0.0.1",
     user: "root",
     password: "",
-    database: "2019_first"
+    database: "2019_final"
   });
   db.query = util.promisify(db.query);
   return db;
