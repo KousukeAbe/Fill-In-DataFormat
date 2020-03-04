@@ -12,8 +12,8 @@ const Zero_Padding = (num) => {
 const Process = (student_operation_log) => {
   fs.writeFileSync(file_name, '');
   //期間の設定(手動)
-  const start_time = new Date('2019-11-27T06:00:00');
-  const finish_time = new Date('2019-11-27T07:30:00');
+  const start_time = new Date('2019-10-16T06:00:00');
+  const finish_time = new Date('2019-10-16T07:30:00');
 
   let time_table = [];
   for(let i = 0; i <= 90; i++){
@@ -61,6 +61,14 @@ const Process = (student_operation_log) => {
 
   fs.appendFileSync(file_name, `\n`);
   for(let i = 0; i < page_operation.length; i++){
+    if(i > 1 && student_list[i] < 1821200 && student_list[i] > 1821000){
+      let back_student_num = parseInt(student_list[i-1]) + 1;
+      while(back_student_num != parseInt(student_list[i])){
+        fs.appendFileSync(file_name, `${back_student_num},\n`);
+        back_student_num++;
+      }
+    }
+
     fs.appendFileSync(file_name, `${student_list[i]},`);
     for(let p = 0; p < time_table.length;p++){
       const target = page_operation[i].find((time) => {
@@ -78,7 +86,7 @@ const Process = (student_operation_log) => {
 }
 
 const Boot = async () => {
-  let student_operation_log = await Query('select * from learning_operation_log where url = "se9.pdf" and page_num > 0 order by student_number, id;', []);
+  let student_operation_log = await Query('select * from learning_operation_log where url = "se4.pdf" and page_num > 0 order by student_number, id;', []);
   // let student_operation_log = await Query('select * from teacher_page_turning where url = "/documents/se3.pdf" and display_out > 0 order by id;', []);
   Process(student_operation_log);
   return 0;

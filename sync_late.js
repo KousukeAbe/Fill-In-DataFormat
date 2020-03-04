@@ -64,6 +64,7 @@ const Process = (teacher_page_turning, page_turning) => {
       last_time = start_time;
 
       async_time += finish_time.getTime() - latest_time.getTime();
+      console.log(async_time);
       fs.appendFileSync('./sync_late.txt', `${Zero_Padding(latest_time.getHours())}:${Zero_Padding(latest_time.getMinutes())}:${Zero_Padding(latest_time.getSeconds())},`);
       fs.appendFileSync('./sync_late.txt', `${Math.floor(async_time / (finish_time.getTime() - start_time.getTime()) * 10000) / 100}\n${current_student_number},`);
       latest_time = finish_time;
