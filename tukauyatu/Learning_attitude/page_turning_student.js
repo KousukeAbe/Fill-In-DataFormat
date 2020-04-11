@@ -9,17 +9,27 @@ const Zero_Padding = (num) => {
   return ("00000000" + num).slice(-2);
 }
 // ここにやりたい処理を入れる
-const Process = (student_operation_log) => {
+const Process = (student_operation_log, teacher_page_turning) => {
   fs.writeFileSync(file_name, '');
   //期間の設定(手動)
-  const start_time = new Date('2019-11-27T06:00:00');
-  const finish_time = new Date('2019-11-27T07:30:00');
+  let start_time = new Date('2019-11-27T15:00:00');
+  const finish_time = new Date('2019-11-27T16:30:00');
 
-  // const start_time = new Date('2019-11-27T15:00:00');
-  // const finish_time = new Date('2019-11-27T16:30:00');
+  for(let i = 0; i < teacher_page_turning.length; i++){
+    let start = new Date('2019-11-27T15:00:00');
+    let finish = new Date('2019-11-27T16:30:00');
+    let current_time = new Date(teacher_page_turning[i].created_at);
+    if(start.getTime() < current_time.getTime() && finish.getTime() > current_time.getTime()){
+      current_time.setSeconds(0);
+      current_time.setHours(current_time.getHours());
+      start_time = current_time;
+      break;
+    }
+  }
 
   let time_table = [];
-  for(let i = 0; i <= 90; i++){
+  const lesson_time = (finish_time - start_time) / 60000;
+  for(let i = 0; i <= lesson_time; i++){
     let insert_time = new Date(start_time);
     insert_time.setMinutes(insert_time.getMinutes() + i);
     time_table.push(`${Zero_Padding(insert_time.getHours())}:${Zero_Padding(insert_time.getMinutes())}`);
@@ -73,6 +83,7 @@ const Process = (student_operation_log) => {
     }
 
     fs.appendFileSync(file_name, `${student_list[i]},`);
+    let before_num = 4;
     for(let p = 0; p < time_table.length;p++){
       const target = page_operation[i].find((time) => {
         return (time.created_at == time_table[p]);
@@ -80,8 +91,12 @@ const Process = (student_operation_log) => {
 
       if(target){
         fs.appendFileSync(file_name, `${target.page_num},`);
+        before_num = target.page_num;
       }else{
-        fs.appendFileSync(file_name, `欠,`);
+        // student用
+        // fs.appendFileSync(file_name, `欠,`);
+        // teacher用
+        fs.appendFileSync(file_name, `${before_num},`);
       }
     }
     fs.appendFileSync(file_name, '\n');
@@ -89,9 +104,10 @@ const Process = (student_operation_log) => {
 }
 
 const Boot = async () => {
-  let student_operation_log = await Query('select * from learning_operation_log where url = "se9.pdf" and page_num > 0 order by student_number, id;', []);
-  // let student_operation_log = await Query('select * from teacher_page_turning where url = "/documents/se9.pdf" and page_num > 0 order by id;', []);
-  Process(student_operation_log);
+  // let student_operation_log = await Query('select * from learning_operation_log where url = "se4.pdf" and page_num > 0 order by student_number, id;', []);
+  let student_operation_log = await Query('select * from teacher_page_turning where url = "/documents/se9.pdf" and page_num > 0 order by id;', []);
+  let teacher_page_turning = await Query('select * from teacher_page_turning where url = "/documents/se9.pdf" and page_num = 4;', []);
+  Process(student_operation_log,teacher_page_turning);
   return 0;
 };
 
@@ -102,7 +118,7 @@ const Connection = async () => {
     host: "127.0.0.1",
     user: "root",
     password: "",
-    database: "2019_final"
+    database: "template_express_socketio_auth"
   });
   db.query = util.promisify(db.query);
   return db;
